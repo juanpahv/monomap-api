@@ -1,0 +1,27 @@
+name: Docker Build & Publish
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Log in to DockerHub
+        run: docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_PASSWORD }}"
+
+      - name: Build Docker image
+        run: docker build -t juanpahv/monomap-api:${{ github.sha }} .
+        
+      - name: Tag Latest
+        run: docker tag juanpahv/monomap-api:${{ github.sha }} juanpahv/monomap-api:latest
+
+      - name: Push Docker image
+        run: | 
+          docker push juanpahv/monomap-api:latest
+          docker push juanpahv/monomap-api:${{ github.sha }}
